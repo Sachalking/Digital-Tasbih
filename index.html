@@ -7,47 +7,43 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Custom animations */
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-
         body {
-            background: linear-gradient(rgba(224, 224, 224, 0.5), rgba(77, 130, 187, 0.5)), url('image.png') center/cover no-repeat fixed;
-        }
-
-        .notification {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .notification.fade-out {
-            animation: fadeOut 0.5s ease-out;
+            background: linear-gradient(rgba(224, 224, 224, 0.5), rgba(77, 130, 187, 0.5)), url('mosque.png') center/cover no-repeat fixed;
         }
 
         input::placeholder {
-            color: #94a3b8; /* Light gray for placeholder text */
+            color: #94a3b8;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        #dzikirText {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        #counter {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        button {
+            font-size: 1.125rem;
+            font-weight: 600;
         }
     </style>
 </head>
 <body class="text-gray-800 flex justify-center items-center h-screen font-poppins">
-    <div class="w-11/12 max-w-md bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg text-center border border-white/20">
+    <div class="w-11/12 max-w-md bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg text-center border border-white/20">
         <h2 class="text-2xl font-semibold mb-4 text-sky-700">Digital Tasbih</h2>
         
-        <select id="dzikirSelect" class="w-full p-3 my-2 bg-white/90 rounded-lg text-center text-gray-800 focus:outline-none focus:bg-white">
+        <select id="dzikirSelect" class="w-full p-3 my-2 bg-white/90 rounded-lg text-center text-gray-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-sky-500">
             <option value="Subhanallah">Subhanallah</option>
             <option value="Alhamdulillah">Alhamdulillah</option>
             <option value="Allahu Akbar">Allahu Akbar</option>
@@ -56,10 +52,11 @@
             <option value="Sallallahu alayhi wasallam">Sallallahu alayhi wasallam</option>
         </select>
 
-        <input type="number" id="targetHitungan" placeholder="Enter target count" min="1" class="w-full p-3 my-2 bg-white/90 rounded-lg text-center text-gray-800 focus:outline-none focus:bg-white">
+        <input type="number" id="targetHitungan" placeholder="Enter target count" min="1" class="w-full p-3 my-2 bg-white/90 rounded-lg text-center text-gray-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-sky-500">
 
         <div id="dzikirText" class="text-2xl font-bold mt-4 uppercase text-sky-700">Subhanallah</div>
-        <div id="counter" class="text-6xl font-bold my-4 text-sky-700">0</div>
+
+        <div id="counter" class="text-6xl font-bold my-6 text-sky-700">0</div>
 
         <div class="flex justify-center gap-4">
             <button id="tasbihButton" class="w-20 h-20 bg-sky-600 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-sky-700 active:scale-90 transition-transform">Tap</button>
@@ -67,11 +64,11 @@
         </div>
     </div>
 
-    <div id="notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 notification hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div id="notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 hidden z-50 max-w-xs text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
         </svg>
-        <span class="text-lg font-bold">🎉 Congratulations! You have completed your target.</span>
+        <span class="text-sm font-semibold">🎉 Congratulations! You have completed your target.</span>
     </div>
 
     <audio id="backgroundAudio" src="audio.mp3" loop></audio>
@@ -79,7 +76,6 @@
     <footer class="fixed bottom-0 left-0 w-full bg-sky-700 text-white text-center py-2 text-sm">
         Developed by <span class="font-semibold">Maher Sachal</span> and Concept by <span class="font-semibold">Ahmad Faraz</span>
     </footer>
-    
 
     <script>
         const backgroundAudio = document.getElementById("backgroundAudio");
@@ -93,21 +89,16 @@
 
         let count = 0;
         let target = 0;
-        let audioStarted = false; // Flag to track if audio has started
+        let audioStarted = false;
 
-        // Tap button click event
         tasbihButton.addEventListener("click", function () {
-            // Check if target is set before starting the count
             if (target === 0) {
-                showTargetNotSetNotification(); // Show a message if target is not set
+                showNotification("Please set the target count first!", "#e74c3c");
                 return;
             }
 
-            // Play audio only if not already started
             if (!audioStarted) {
-                backgroundAudio.play().catch(error => {
-                    console.error("Audio playback failed:", error);
-                });
+                backgroundAudio.play().catch(console.error);
                 audioStarted = true;
             }
 
@@ -116,77 +107,48 @@
 
             if (count >= target) {
                 triggerVibration();
-                showCongratulatoryNotification();
+                showNotification("🎉 Congratulations! You have completed your target.", "#2ecc71");
                 count = 0;
                 counter.textContent = count;
             }
         });
 
-        // Show notification asking to set the target count
-        function showTargetNotSetNotification() {
-            notification.classList.remove("hidden");
-            notification.classList.remove("fade-out");
-            notification.classList.add("fadeIn");
-            notification.style.backgroundColor = "#e74c3c"; // Red for warning message
-            notification.querySelector("span").textContent = "Please set the target count first!";
-
-            setTimeout(() => {
-                notification.classList.add("fade-out");
-                setTimeout(() => {
-                    notification.classList.add("hidden");
-                }, 500);
-            }, 3000);
-        }
-
-        // Show congratulatory notification
-        function showCongratulatoryNotification() {
-            notification.classList.remove("hidden");
-            notification.classList.remove("fade-out");
-            notification.classList.add("fadeIn");
-            notification.style.backgroundColor = "#2ecc71"; // Green for success message
-            notification.querySelector("span").textContent = "🎉 Congratulations! You have completed your target.";
-
-            setTimeout(() => {
-                notification.classList.add("fade-out");
-                setTimeout(() => {
-                    notification.classList.add("hidden");
-                }, 500); 
-            }, 3000); 
-        }
-
-        // Change dzikir based on selection
         dzikirSelect.addEventListener("change", function () {
             dzikirText.textContent = dzikirSelect.value;
             count = 0;
             counter.textContent = count;
         });
 
-        // Set target count
         targetHitungan.addEventListener("change", function () {
             target = parseInt(targetHitungan.value);
         });
 
-        // Reset count
         resetButton.addEventListener("click", function () {
             count = 0;
             counter.textContent = count;
         });
 
-        // Vibration function
+        function showNotification(message, bgColor) {
+            notification.querySelector("span").textContent = message;
+            notification.style.backgroundColor = bgColor;
+            notification.classList.remove("hidden");
+
+            setTimeout(() => {
+                notification.classList.add("hidden");
+            }, 3000);
+        }
+
         function triggerVibration() {
             if ("vibrate" in navigator) {
                 navigator.vibrate([300, 100, 300]);
             }
         }
 
-        // Prevent playing audio if the tab is not active
         document.addEventListener("visibilitychange", function() {
             if (document.hidden) {
                 backgroundAudio.pause();
             } else {
-                backgroundAudio.play().catch(error => {
-                    console.error("Audio playback failed:", error);
-                });
+                backgroundAudio.play().catch(console.error);
             }
         });
     </script>
