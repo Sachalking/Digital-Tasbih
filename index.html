@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        /* Custom animations */
         @keyframes shake {
             0% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -26,7 +27,7 @@
         }
 
         body {
-            background: linear-gradient(rgba(224, 224, 224, 0.5), rgba(77, 130, 187, 0.5)), url('download (1).jpg') center/cover no-repeat fixed;
+            background: linear-gradient(rgba(224, 224, 224, 0.5), rgba(77, 130, 187, 0.5)), url('download (1).png') center/cover no-repeat fixed;
         }
 
         .notification {
@@ -37,7 +38,6 @@
             animation: fadeOut 0.5s ease-out;
         }
 
-        /* Custom placeholder color */
         input::placeholder {
             color: #94a3b8; /* Light gray for placeholder text */
         }
@@ -47,7 +47,6 @@
     <div class="w-11/12 max-w-md bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg text-center border border-white/20">
         <h2 class="text-2xl font-semibold mb-4 text-sky-700">Digital Tasbih</h2>
         
-        <!-- Select Dzikir -->
         <select id="dzikirSelect" class="w-full p-3 my-2 bg-white/90 rounded-lg text-center text-gray-800 focus:outline-none focus:bg-white">
             <option value="Subhanallah">Subhanallah</option>
             <option value="Alhamdulillah">Alhamdulillah</option>
@@ -57,41 +56,62 @@
             <option value="Sallallahu alayhi wasallam">Sallallahu alayhi wasallam</option>
         </select>
 
-        <!-- Target Count -->
         <input type="number" id="targetHitungan" placeholder="Enter target count" min="1" class="w-full p-3 my-2 bg-white/90 rounded-lg text-center text-gray-800 focus:outline-none focus:bg-white">
-        
-        <!-- Display Count -->
+
         <div id="dzikirText" class="text-2xl font-bold mt-4 uppercase text-sky-700">Subhanallah</div>
         <div id="counter" class="text-6xl font-bold my-4 text-sky-700">0</div>
-        
-        <!-- Buttons -->
+
         <div class="flex justify-center gap-4">
             <button id="tasbihButton" class="w-20 h-20 bg-sky-600 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-sky-700 active:scale-90 transition-transform">Tap</button>
             <button id="resetButton" class="w-20 h-20 bg-red-500 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-lg hover:bg-red-600 active:scale-90 transition-transform">Reset</button>
         </div>
     </div>
 
-    <!-- Notification -->
-    <div id="notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-sky-700 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 notification hidden">
+    <div id="notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 notification hidden">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
         </svg>
-        <span class="text-lg">🎉 Congratulations! You have completed your target.</span>
+        <span class="text-lg font-bold">🎉 Congratulations! You have completed your target.</span>
     </div>
 
     <audio id="backgroundAudio" src="audio.mp3" loop></audio>
 
     <script>
         const backgroundAudio = document.getElementById("backgroundAudio");
+        const dzikirSelect = document.getElementById("dzikirSelect");
+        const dzikirText = document.getElementById("dzikirText");
+        const counter = document.getElementById("counter");
+        const resetButton = document.getElementById("resetButton");
+        const targetHitungan = document.getElementById("targetHitungan");
+        const notification = document.getElementById("notification");
+        const tasbihButton = document.getElementById("tasbihButton");
 
-        // Play audio on page load
-        window.addEventListener("load", function() {
+        let count = 0;
+        let target = 0;
+
+        // Play audio after user interaction (when button is clicked)
+        tasbihButton.addEventListener("click", function () {
+            if (target === 0) {
+                showWarningNotification(); // Show warning if target is not set
+                return;
+            }
+
             backgroundAudio.play().catch(error => {
                 console.error("Audio playback failed:", error);
             });
+
+            count++;
+            counter.textContent = count;
+
+            if (count >= target) {
+                triggerVibration();
+                showNotification();
+                count = 0;
+                counter.textContent = count;
+            }
         });
 
-        // Pause audio when the tab is not active
+        // Prevent playing audio if the tab is not active
         document.addEventListener("visibilitychange", function() {
             if (document.hidden) {
                 backgroundAudio.pause();
@@ -102,37 +122,11 @@
             }
         });
 
-        let count = 0;
-        let target = 0;
-
-        // Get elements
-        const dzikirSelect = document.getElementById("dzikirSelect");
-        const dzikirText = document.getElementById("dzikirText");
-        const counter = document.getElementById("counter");
-        const tasbihButton = document.getElementById("tasbihButton");
-        const resetButton = document.getElementById("resetButton");
-        const targetHitungan = document.getElementById("targetHitungan");
-        const notification = document.getElementById("notification");
-
         // Change dzikir based on selection
         dzikirSelect.addEventListener("change", function () {
             dzikirText.textContent = dzikirSelect.value;
             count = 0;
             counter.textContent = count;
-        });
-
-        // Increase count when button is clicked
-        tasbihButton.addEventListener("click", function () {
-            count++;
-            counter.textContent = count;
-
-            // Check if target is reached
-            if (target > 0 && count >= target) {
-                triggerVibration();
-                showNotification();
-                count = 0;
-                counter.textContent = count;
-            }
         });
 
         // Set target count
@@ -146,7 +140,7 @@
             counter.textContent = count;
         });
 
-        // Show notification
+        // Show notification when the target is reached
         function showNotification() {
             notification.classList.remove("hidden");
             notification.classList.remove("fade-out");
@@ -156,14 +150,29 @@
                 notification.classList.add("fade-out");
                 setTimeout(() => {
                     notification.classList.add("hidden");
-                }, 500); // Wait for fade-out animation to complete
-            }, 3000); // Hide after 3 seconds
+                }, 500); 
+            }, 3000); 
+        }
+
+        // Show warning notification if no target is set
+        function showWarningNotification() {
+            notification.classList.remove("hidden");
+            notification.classList.remove("fade-out");
+            notification.classList.add("fadeIn");
+            notification.style.backgroundColor = "#f39c12"; // Yellow for warning
+
+            setTimeout(() => {
+                notification.classList.add("fade-out");
+                setTimeout(() => {
+                    notification.classList.add("hidden");
+                }, 500); 
+            }, 3000);
         }
 
         // Vibration function
         function triggerVibration() {
             if ("vibrate" in navigator) {
-                navigator.vibrate([300, 100, 300]); // Vibrate twice
+                navigator.vibrate([300, 100, 300]);
             }
         }
     </script>
