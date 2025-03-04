@@ -27,7 +27,7 @@
         }
 
         body {
-            background: linear-gradient(rgba(224, 224, 224, 0.5), rgba(77, 130, 187, 0.5)), url('download (1).png') center/cover no-repeat fixed;
+            background: linear-gradient(rgba(224, 224, 224, 0.5), rgba(77, 130, 187, 0.5)), url('image.png') center/cover no-repeat fixed;
         }
 
         .notification {
@@ -88,39 +88,66 @@
 
         let count = 0;
         let target = 0;
+        let audioStarted = false; // Flag to track if audio has started
 
-        // Play audio after user interaction (when button is clicked)
+        // Tap button click event
         tasbihButton.addEventListener("click", function () {
+            // Check if target is set before starting the count
             if (target === 0) {
-                showWarningNotification(); // Show warning if target is not set
+                showTargetNotSetNotification(); // Show a message if target is not set
                 return;
             }
 
-            backgroundAudio.play().catch(error => {
-                console.error("Audio playback failed:", error);
-            });
+            // Play audio only if not already started
+            if (!audioStarted) {
+                backgroundAudio.play().catch(error => {
+                    console.error("Audio playback failed:", error);
+                });
+                audioStarted = true;
+            }
 
             count++;
             counter.textContent = count;
 
             if (count >= target) {
                 triggerVibration();
-                showNotification();
+                showCongratulatoryNotification();
                 count = 0;
                 counter.textContent = count;
             }
         });
 
-        // Prevent playing audio if the tab is not active
-        document.addEventListener("visibilitychange", function() {
-            if (document.hidden) {
-                backgroundAudio.pause();
-            } else {
-                backgroundAudio.play().catch(error => {
-                    console.error("Audio playback failed:", error);
-                });
-            }
-        });
+        // Show notification asking to set the target count
+        function showTargetNotSetNotification() {
+            notification.classList.remove("hidden");
+            notification.classList.remove("fade-out");
+            notification.classList.add("fadeIn");
+            notification.style.backgroundColor = "#e74c3c"; // Red for warning message
+            notification.querySelector("span").textContent = "Please set the target count first!";
+
+            setTimeout(() => {
+                notification.classList.add("fade-out");
+                setTimeout(() => {
+                    notification.classList.add("hidden");
+                }, 500);
+            }, 3000);
+        }
+
+        // Show congratulatory notification
+        function showCongratulatoryNotification() {
+            notification.classList.remove("hidden");
+            notification.classList.remove("fade-out");
+            notification.classList.add("fadeIn");
+            notification.style.backgroundColor = "#2ecc71"; // Green for success message
+            notification.querySelector("span").textContent = "🎉 Congratulations! You have completed your target.";
+
+            setTimeout(() => {
+                notification.classList.add("fade-out");
+                setTimeout(() => {
+                    notification.classList.add("hidden");
+                }, 500); 
+            }, 3000); 
+        }
 
         // Change dzikir based on selection
         dzikirSelect.addEventListener("change", function () {
@@ -140,41 +167,23 @@
             counter.textContent = count;
         });
 
-        // Show notification when the target is reached
-        function showNotification() {
-            notification.classList.remove("hidden");
-            notification.classList.remove("fade-out");
-            notification.classList.add("fadeIn");
-
-            setTimeout(() => {
-                notification.classList.add("fade-out");
-                setTimeout(() => {
-                    notification.classList.add("hidden");
-                }, 500); 
-            }, 3000); 
-        }
-
-        // Show warning notification if no target is set
-        function showWarningNotification() {
-            notification.classList.remove("hidden");
-            notification.classList.remove("fade-out");
-            notification.classList.add("fadeIn");
-            notification.style.backgroundColor = "#f39c12"; // Yellow for warning
-
-            setTimeout(() => {
-                notification.classList.add("fade-out");
-                setTimeout(() => {
-                    notification.classList.add("hidden");
-                }, 500); 
-            }, 3000);
-        }
-
         // Vibration function
         function triggerVibration() {
             if ("vibrate" in navigator) {
                 navigator.vibrate([300, 100, 300]);
             }
         }
+
+        // Prevent playing audio if the tab is not active
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                backgroundAudio.pause();
+            } else {
+                backgroundAudio.play().catch(error => {
+                    console.error("Audio playback failed:", error);
+                });
+            }
+        });
     </script>
 </body>
 </html>
